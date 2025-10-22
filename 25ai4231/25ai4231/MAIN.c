@@ -1,56 +1,62 @@
-#include <stdio.h>
-#include <time.h>   // µô·¹ÀÌ¿ë (sleep ´ë¿ë)
+ï»¿#include <stdio.h>ï»¿
+#include <stdlib.h>
 
-void drawStar(int x, int y) {
-    printf("\x1B[%d;%dH", y, x);
-    printf("*");
-    fflush(stdout);
+int LSR_Gossip(int Gender)
+{
+	Gender = 1;
+	printf("\nì´ì„¸ë ¹ : ã…ã…ã… êµìˆ˜ë‹˜ì€ ê²Œì´ì•¼...\n");
+	return 0;
 }
 
-void delay(int milliseconds) {
-    clock_t start_time = clock();
-    while (clock() < start_time + milliseconds * CLOCKS_PER_SEC / 1000);
+int Wife_Command(int* Gender)
+{
+	Gender[0] = 1;
+	printf("\nì™€ì´í”„ : ë„Œ ì˜¤ëŠ˜ë¶€ë¡œ ê²Œì´ì•¼...\n");
+	return 0;
 }
 
-int main() {
-    int width = 6;
-    int height = 5;
+int main()
+{
+	int* ES_Maum;
+	ES_Maum = (int*)malloc(sizeof(int) * 2);
 
-    printf("\x1B[2J");    // È­¸é Å¬¸®¾î
-    printf("\x1B[?25l");  // Ä¿¼­ ¼û±â±â
+	/* [0] ì¢‹ì•„í•˜ëŠ” ì„±ë³„
+	 *     0: ì—¬ì
+	 *     1: ë‚¨ì
+	 *     2: ê¸°íƒ€
+	 * [1] ì• ì¸ ìœ ë¬´
+	 *     0: ì—†ìŒ
+	 *     1: ìˆìŒ
+	 */
+	ES_Maum[0] = 0;
+	ES_Maum[1] = 1;
 
-    int row = 1;
-    int col = 1;
+	//LSR_Gossip(ES_Maum[0]);
+	Wife_Command(ES_Maum);
 
-    while (row <= height) {
-        if (row == 1 || row == height) {
-            // Ã¹ ÁÙ, ¸¶Áö¸· ÁÙ: ¸ğµç Ä­¿¡ º°
-            drawStar(col, row);
-            delay(200);  // 0.2ÃÊ µô·¹ÀÌ
-            col++;
-            if (col > width) {
-                col = 1;
-                row++;
-            }
-        }
-        else {
-            // Áß°£ ÁÙ: ¾ç³¡¸¸ º°
-            if (col == 1 || col == width) {
-                drawStar(col, row);
-                delay(200);
-            }
-            col++;
-            if (col > width) {
-                col = 1;
-                row++;
-            }
-        }
-    }
 
-    printf("\x1B[?25h");              // Ä¿¼­ º¸ÀÌ±â
-    printf("\x1B[%d;1H", height + 2); // Ä¿¼­ À§Ä¡ ¸¶Áö¸· ÁÙ ¾Æ·¡·Î ÀÌµ¿
+	if (ES_Maum[0] == 1)
+	{
+		printf("ê·¸ëŠ” ê²Œì´ì˜€ë‹¤.\n");
+	}
+	else if (ES_Maum[0] == 0)
+	{
+		printf("ê·¸ëŠ” ì—¬ì„±ì„ ì‚¬ë‘í•œë‹¤\n");
+	}
+	else if (ES_Maum[0] == 0)
+	{
+		printf("ê·¸ëŠ”... í•˜ì•„...\n");
+	}
 
-    printf("½ÇÇàÀÌ ½ÃÀÛµÇ°í Á¾·áµË´Ï´Ù.\n");
+	if (ES_Maum[1] == 1)
+	{
+		printf("ê·¸ëŠ” ì‚¬ë‘ê¾¼ì´ë‹¤.\n");
+	}
+	else if (ES_Maum[1] == 0)
+	{
+		printf("ê·¸ëŠ” ì™¸ë¡­ë‹¤.\n");
+	}
 
-    return 0;
+	free(ES_Maum);
+	return 0;
 }

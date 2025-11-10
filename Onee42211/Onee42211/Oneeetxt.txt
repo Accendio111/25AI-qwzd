@@ -35,6 +35,9 @@ int main(void) {
 
     char line[LINE_BUF];
     int idx = 0;
+
+    fgets(line, sizeof(line), fin);
+
     while (idx < MAX_STUDENTS && fgets(line, sizeof(line), fin)) {
         /* 줄 끝 개행 제거 */
         char* p = line;
@@ -123,14 +126,6 @@ int main(void) {
 모의시험 
 
 
-
-
-
-
-
-
-
-
 #define _CRT_SECURE_NO_WARNINGS     // Visual Studio에서 scanf, fopen 등 보안 경고를 막기 위한 매크로
 #include <stdio.h>                  // 표준 입출력 함수 사용 (printf, scanf, fopen 등)
 #include <stdlib.h>                 // atoi 등 표준 라이브러리 함수 사용
@@ -171,6 +166,8 @@ int main(void) {
 
     char line[LINE_BUF];  // 한 줄을 저장할 버퍼
     int idx = 0;          // 학생 배열 인덱스
+
+    fgets(line, sizeof(line), fin); //첫줄 건너뛰기
 
     // CSV 파일을 한 줄씩 읽기
     while (idx < MAX_STUDENTS && fgets(line, sizeof(line), fin)) {
@@ -269,3 +266,11 @@ int main(void) {
 
     return 0;      // 정상 종료
 }
+
+
+
+
+
+
+
+

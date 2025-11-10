@@ -1,78 +1,81 @@
-﻿#define _CRT_SECURE_NO_WARNINGS
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+﻿#define _CRT_SECURE_NO_WARNINGS     // Visual Studio에서 scanf, fopen 등 보안 경고를 막기 위한 매크로
+#include <stdio.h>                  // 표준 입출력 함수 사용 (printf, scanf, fopen 등)
+#include <stdlib.h>                 // atoi 등 표준 라이브러리 함수 사용
+#include <string.h>                 // 문자열 처리 함수(strtok, strncpy 등) 사용
 
-#define MAX_STUDENTS 10
-#define LINE_BUF 256
+#define MAX_STUDENTS 10             // 학생 수를 10명으로 고정
+#define LINE_BUF 256                // 한 줄을 읽을 때 사용할 버퍼 크기 지정
 
+// 학생 정보를 저장할 구조체 정의
 typedef struct {
-    char name[64];
-    int atk;
-    int def;
-    int hp;
+    char name[64];   // 학생 이름
+    int atk;         // 공격력
+    int def;         // 방어력
+    int hp;          // 체력
 } Student;
 
+// 두 정수 중 더 큰 값을 반환하는 함수
 int max_int(int a, int b) { return a > b ? a : b; }
 
 int main(void) {
-    char id[64];
-    char me[64];
-    Student s[MAX_STUDENTS];
+    char id[64];         // 학번을 저장할 배열
+    char me[64];         // 이름을 저장할 배열
+    Student s[MAX_STUDENTS];   // 학생 10명의 정보를 저장할 구조체 배열
 
-    /* 입력 (spec 요구대로 scanf 사용) */
-    printf("학번을 입력하세요: ");
-    if (scanf("%63s", id) != 1) return 1;
-    printf("이름을 입력하세요: ");
-    if (scanf("%63s", me) != 1) return 1;
+    /* === (1) 사용자 입력 받기 === */
+    printf("학번을 입력하세요: ");             // 학번 입력 요청
+    if (scanf("%63s", id) != 1) return 1;      // 학번을 문자열로 입력받음, 실패 시 프로그램 종료
 
-    /* CSV 파일 열기 */
-    FILE* fin = fopen("students.csv", "r");
-    if (!fin) {
-        perror("students.csv 열기 실패");
-        return 1;
+    printf("이름을 입력하세요: ");             // 이름 입력 요청
+    if (scanf("%63s", me) != 1) return 1;      // 이름 입력받음, 실패 시 프로그램 종료
+
+    /* === (2) students.csv 파일 열기 === */
+    FILE* fin = fopen("students.csv", "r");    // 학생 데이터가 들어있는 CSV 파일을 읽기 모드로 엶
+    if (!fin) {                                // 파일이 없거나 열기에 실패하면
+        perror("students.csv 열기 실패");       // 에러 메시지 출력
+        return 1;                              // 프로그램 종료
     }
 
-    char line[LINE_BUF];
-    int idx = 0;
+    char line[LINE_BUF];  // 한 줄을 저장할 버퍼
+    int idx = 0;          // 학생 배열 인덱스
 
-    /* --- 헤더 한 줄 건너뛰기 --- */
-    fgets(line, sizeof(line), fin);
+    fgets(line, sizeof(line), fin); //첫줄 건너뛰기
 
-    /* 데이터 읽기 */
+    // CSV 파일을 한 줄씩 읽기
     while (idx < MAX_STUDENTS && fgets(line, sizeof(line), fin)) {
-        /* 줄 끝 개행 제거 */
+        /* 줄 끝의 개행 문자 제거 */
         char* p = line;
         while (*p) {
-            if (*p == '\r' || *p == '\n') {
-                *p = '\0';
-                break;
+            if (*p == '\r' || *p == '\n') {    // 줄 끝에 '\r' 또는 '\n'이 있으면
+                *p = '\0';                     // 문자열 종료 문자로 바꿈
+                break;                         // 루프 종료
             }
             p++;
         }
 
-        /* 토큰 분리: 이름,공격력,방어력,HP */
-        char* tok = strtok(line, ",");
-        if (!tok) break;
-        strncpy(s[idx].name, tok, sizeof(s[idx].name) - 1);
-        s[idx].name[sizeof(s[idx].name) - 1] = '\0';
+        /* 콤마(,) 기준으로 토큰 분리: 이름, 공격력, 방어력, HP */
+        char* tok = strtok(line, ",");         // 첫 번째 토큰 (이름)
+        if (!tok) break;                       // 잘못된 줄이면 종료
+        strncpy(s[idx].name, tok, sizeof(s[idx].name) - 1);  // 이름 복사
+        s[idx].name[sizeof(s[idx].name) - 1] = '\0';         // 문자열 끝 보장
 
-        tok = strtok(NULL, ","); if (!tok) break; s[idx].atk = atoi(tok);
-        tok = strtok(NULL, ","); if (!tok) break; s[idx].def = atoi(tok);
-        tok = strtok(NULL, ","); if (!tok) break; s[idx].hp = atoi(tok);
+        tok = strtok(NULL, ","); if (!tok) break; s[idx].atk = atoi(tok); // 두 번째 토큰 (공격력)
+        tok = strtok(NULL, ","); if (!tok) break; s[idx].def = atoi(tok); // 세 번째 토큰 (방어력)
+        tok = strtok(NULL, ","); if (!tok) break; s[idx].hp = atoi(tok);  // 네 번째 토큰 (HP)
 
-        idx++;
+        idx++;  // 학생 한 명 읽었으므로 인덱스 증가
     }
-    fclose(fin);
+    fclose(fin);  // 입력 파일 닫기
 
+    // 읽은 학생 수가 정확히 10명이 아닐 경우 오류
     if (idx != MAX_STUDENTS) {
         fprintf(stderr, "students.csv에 %d명의 데이터가 있어야 합니다 (발견: %d)\n", MAX_STUDENTS, idx);
         return 1;
     }
 
-    /* 출력 파일 열기 */
-    FILE* fout = fopen("Test.txt", "w");
-    if (!fout) {
+    /* === (3) 출력 파일 Test.txt 열기 === */
+    FILE* fout = fopen("Test.txt", "w");  // 결과를 저장할 파일 생성
+    if (!fout) {                          // 파일 생성 실패 시
         perror("Test.txt 생성 실패");
         return 1;
     }
@@ -80,37 +83,41 @@ int main(void) {
     /* (1) 첫 번째 줄: 학번 : 이름 */
     fprintf(fout, "%s : %s\n", id, me);
 
-    /* (2) 가장 공격력이 높은 사람 (같으면 먼저 등장한 사람) */
-    int max_idx = 0;
-    for (int i = 1; i < MAX_STUDENTS; i++) {
-        if (s[i].atk > s[max_idx].atk)
-            max_idx = i;
+    /* (2) 가장 공격력이 높은 사람 찾기 */
+    int max_idx = 0;                          // 현재 최대 공격력의 인덱스
+    for (int i = 1; i < MAX_STUDENTS; i++) {  // 모든 학생 탐색
+        if (s[i].atk > s[max_idx].atk)        // 더 큰 공격력을 가진 학생 발견 시
+            max_idx = i;                      // 인덱스 갱신
     }
     fprintf(fout, "가장 공격력이 높은 사람: %s (ATK=%d)\n", s[max_idx].name, s[max_idx].atk);
 
-    /* (3) 3번째 사람 (인덱스 2) */
-    fprintf(fout, "3번째 : %s HP=%d\n", s[2].name, s[2].hp);
+    /* (3) 3번째 학생 정보 출력 (인덱스 2) */
+    fprintf(fout, "3번째: %s HP=%d\n", s[2].name, s[2].hp);
 
-    /* (4) 8번째 사람 (인덱스 7) */
-    fprintf(fout, "8번째 : %s HP=%d\n", s[7].name, s[7].hp);
+    /* (4) 8번째 학생 정보 출력 (인덱스 7) */
+    fprintf(fout, "8번째: %s HP=%d\n", s[7].name, s[7].hp);
 
-    /* (5) 3번째 vs 8번째 전투 */
-    int atk3 = s[2].atk, def3 = s[2].def, hp3 = s[2].hp;
-    int atk8 = s[7].atk, def8 = s[7].def, hp8 = s[7].hp;
+    /* (5) 3번째 vs 8번째 전투 시뮬레이션 */
+    int atk3 = s[2].atk, def3 = s[2].def, hp3 = s[2].hp;  // 3번째 학생 능력치 복사
+    int atk8 = s[7].atk, def8 = s[7].def, hp8 = s[7].hp;  // 8번째 학생 능력치 복사
 
-    int dmg_to_3 = max_int(0, atk8 - def3);
-    int dmg_to_8 = max_int(0, atk3 - def8);
+    // 서로에게 입히는 피해 계산 (공격력 - 상대방 방어력, 단 0보다 작으면 0)
+    int dmg_to_3 = max_int(0, atk8 - def3);   // 8번째 학생이 3번째 학생에게 주는 피해
+    int dmg_to_8 = max_int(0, atk3 - def8);   // 3번째 학생이 8번째 학생에게 주는 피해
 
     if (dmg_to_3 == 0 && dmg_to_8 == 0) {
-        fprintf(fout, "3번째 vs 8번째 : 무승부\n");
+        // 서로 피해를 입히지 못하면 무승부
+        fprintf(fout, "3번째 vs 8번째: 무승부\n");
     }
     else {
+        /* 동시 턴 전투 진행 */
         while (hp3 > 0 && hp8 > 0) {
-            hp3 -= dmg_to_3;
-            hp8 -= dmg_to_8;
+            hp3 -= dmg_to_3;   // 3번째 학생이 피해 받음
+            hp8 -= dmg_to_8;   // 8번째 학생이 피해 받음
 
+            // 체력 감소 후 승패 판정
             if (hp3 <= 0 && hp8 <= 0) {
-                fprintf(fout, "3번째 vs 8번째 : 무승부\n");
+                fprintf(fout, "3번째 vs 8번째: 무승부\n");
                 break;
             }
             else if (hp3 <= 0) {
@@ -124,10 +131,10 @@ int main(void) {
         }
     }
 
-    /* (6) 마지막 줄 */
+    /* (6) 마지막 줄 고정 문장 출력 */
     fprintf(fout, "교수님 시험문제 너무 쉽습니다. 담주에 더 어렵게 내주세요\n");
 
-    fclose(fout);
+    fclose(fout);  // 출력 파일 닫기
 
-    return 0;
+    return 0;      // 정상 종료
 }
